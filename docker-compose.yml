@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: runq-postgres
+    environment:
+      POSTGRES_DB: runq
+      POSTGRES_USER: runq
+      POSTGRES_PASSWORD: runq
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: runq-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./api-service
+    container_name: runq-api
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: runq
+      POSTGRES_USER: runq
+      POSTGRES_PASSWORD: runq
+      REDIS_HOST: redis
+    depends_on:
+      - postgres
+      - redis
+
+  worker:
+    build: ./worker-service
+    container_name: runq-worker
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
