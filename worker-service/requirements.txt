@@ -1,3 +1,4 @@
 redis
 psycopg2-binary
 spacy
+scikit-learn

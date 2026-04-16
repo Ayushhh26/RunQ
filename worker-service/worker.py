@@ -9,6 +9,7 @@ from db import (
     mark_job_success,
 )
 from logging_config import configure_logging
+from processors.classify import classify_document as run_classify_document, preload_classifier
 from processors.extract import extract_metadata as run_extract_metadata, preload_model
 from redis_client import get_redis_client, pop_job_id
 
@@ -34,7 +35,7 @@ def process_job(job_type, file_path):
     if job_type == "extract_metadata":
         result = run_extract_metadata(content)
     elif job_type == "classify_document":
-        result = {"processor": "placeholder_classify", "word_count": len(content.split())}
+        result = run_classify_document(content)
     elif job_type == "summarize_document":
         result = {
             "processor": "placeholder_summarize",
@@ -79,4 +80,7 @@ if __name__ == "__main__":
     logger.info("Loading spaCy model en_core_web_sm...")
     preload_model()
     logger.info("spaCy model ready")
+    logger.info("Loading document classifier...")
+    preload_classifier()
+    logger.info("Classifier ready")
     run_worker_loop()
