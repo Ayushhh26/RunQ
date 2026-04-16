@@ -1,0 +1,34 @@
+import os
+
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "runq")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "runq")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "runq")
+POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
+
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+
+JOB_STATUS_PENDING = "pending"
+JOB_STATUS_RUNNING = "running"
+JOB_STATUS_SUCCESS = "success"
+JOB_STATUS_FAILED = "failed"
+JOB_STATUS_DEAD = "dead"
+
+VALID_JOB_STATUSES = {
+    JOB_STATUS_PENDING,
+    JOB_STATUS_RUNNING,
+    JOB_STATUS_SUCCESS,
+    JOB_STATUS_FAILED,
+    JOB_STATUS_DEAD,
+}
+
+JOB_TYPE_EXTRACT_METADATA = "extract_metadata"
+JOB_TYPE_CLASSIFY_DOCUMENT = "classify_document"
+JOB_TYPE_SUMMARIZE_DOCUMENT = "summarize_document"
+
+VALID_JOB_TYPES = {
+    JOB_TYPE_EXTRACT_METADATA,
+    JOB_TYPE_CLASSIFY_DOCUMENT,
+    JOB_TYPE_SUMMARIZE_DOCUMENT,
+}

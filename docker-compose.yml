@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./api-service/db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
 
   redis:
     image: redis:7
@@ -36,8 +37,13 @@ services:
     build: ./worker-service
     container_name: runq-worker
     environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: runq
+      POSTGRES_USER: runq
+      POSTGRES_PASSWORD: runq
       REDIS_HOST: redis
     depends_on:
+      - postgres
       - redis
 
 volumes:
