@@ -46,6 +46,8 @@ services:
       POSTGRES_USER: runq
       POSTGRES_PASSWORD: runq
       REDIS_HOST: redis
+      # Optional Step 8 testing: export RUNQ_FORCE_FAIL_PATH=documents/report_001.txt then up -d worker
+      RUNQ_FORCE_FAIL_PATH: ${RUNQ_FORCE_FAIL_PATH:-}
     depends_on:
       - postgres
       - redis

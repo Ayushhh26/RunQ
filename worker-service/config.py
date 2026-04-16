@@ -9,6 +9,10 @@ POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
+# Optional: when set to a job `file_path` value (e.g. documents/report_001.txt), the worker raises
+# during processing so you can verify retries + DLQ locally. Leave unset in production.
+RUNQ_FORCE_FAIL_PATH = os.getenv("RUNQ_FORCE_FAIL_PATH", "").strip()
+
 JOB_STATUS_PENDING = "pending"
 JOB_STATUS_RUNNING = "running"
 JOB_STATUS_SUCCESS = "success"
@@ -32,3 +36,9 @@ VALID_JOB_TYPES = {
     JOB_TYPE_CLASSIFY_DOCUMENT,
     JOB_TYPE_SUMMARIZE_DOCUMENT,
 }
+
+# Step 8: failures with new_retry 1..MAX get backoff + re-queue; new_retry > MAX -> dead + DLQ.
+MAX_JOB_RETRY_ATTEMPTS = 3
+# Backoff before re-queue after failure attempts 1..MAX (seconds); length must match MAX.
+RETRY_BACKOFF_SECONDS = (1, 2, 4)
+assert len(RETRY_BACKOFF_SECONDS) == MAX_JOB_RETRY_ATTEMPTS

@@ -2,17 +2,23 @@ import json
 import logging
 import time
 
+from config import (
+    MAX_JOB_RETRY_ATTEMPTS,
+    RETRY_BACKOFF_SECONDS,
+    RUNQ_FORCE_FAIL_PATH,
+)
 from db import (
     get_job_for_processing,
-    mark_job_failed,
+    mark_job_dead,
     mark_job_running,
     mark_job_success,
+    schedule_job_retry,
 )
 from logging_config import configure_logging
 from processors.classify import classify_document as run_classify_document, preload_classifier
 from processors.extract import extract_metadata as run_extract_metadata, preload_model
 from processors.summarize import summarize_document as run_summarize_document
-from redis_client import get_redis_client, pop_job_id
+from redis_client import enqueue_job, get_redis_client, pop_job_id, push_dlq
 
 logger = logging.getLogger("runq-worker")
 
@@ -32,6 +38,11 @@ def wait_for_redis():
 def process_job(job_type, file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
+
+    if RUNQ_FORCE_FAIL_PATH and file_path == RUNQ_FORCE_FAIL_PATH:
+        raise RuntimeError(
+            f"Forced failure for Step 8 testing (RUNQ_FORCE_FAIL_PATH={RUNQ_FORCE_FAIL_PATH!r})"
+        )
 
     if job_type == "extract_metadata":
         result = run_extract_metadata(content)
@@ -59,7 +70,7 @@ def run_worker_loop():
                 logger.warning("Job %s not found in database", job_id)
                 continue
 
-            _, job_type, file_path, _ = job
+            _, job_type, file_path, retry_count = job
             mark_job_running(job_id)
             result = process_job(job_type, file_path)
             processing_ms = int((time.time() - started_at) * 1000)
@@ -67,12 +78,43 @@ def run_worker_loop():
             logger.info("Finished job %s successfully", job_id)
         except Exception as exc:
             processing_ms = int((time.time() - started_at) * 1000)
-            mark_job_failed(job_id, str(exc), processing_ms)
+            err_msg = str(exc)
             logger.exception("Job %s failed", job_id)
+            job = get_job_for_processing(job_id)
+            if not job:
+                logger.warning("Job %s missing during failure handling", job_id)
+                continue
+            _, _, _, retry_count = job
+            new_retry = retry_count + 1
+            if new_retry <= MAX_JOB_RETRY_ATTEMPTS:
+                backoff = RETRY_BACKOFF_SECONDS[new_retry - 1]
+                logger.warning(
+                    "Job %s scheduling retry %s/%s after %ss backoff",
+                    job_id,
+                    new_retry,
+                    MAX_JOB_RETRY_ATTEMPTS,
+                    backoff,
+                )
+                time.sleep(backoff)
+                schedule_job_retry(job_id, new_retry, err_msg)
+                enqueue_job(job_id)
+            else:
+                logger.error(
+                    "Job %s exceeded max retries (%s), moving to DLQ",
+                    job_id,
+                    MAX_JOB_RETRY_ATTEMPTS,
+                )
+                mark_job_dead(job_id, err_msg, processing_ms)
+                push_dlq(job_id)
 
 
 if __name__ == "__main__":
     configure_logging()
+    if RUNQ_FORCE_FAIL_PATH:
+        logger.warning(
+            "RUNQ_FORCE_FAIL_PATH is set — jobs for %r will fail on purpose",
+            RUNQ_FORCE_FAIL_PATH,
+        )
     wait_for_redis()
     logger.info("Loading spaCy model en_core_web_sm...")
     preload_model()

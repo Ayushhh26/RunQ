@@ -1,7 +1,8 @@
 import psycopg2
 
 from config import (
-    JOB_STATUS_FAILED,
+    JOB_STATUS_DEAD,
+    JOB_STATUS_PENDING,
     JOB_STATUS_RUNNING,
     JOB_STATUS_SUCCESS,
     POSTGRES_DB,
@@ -74,7 +75,24 @@ def mark_job_success(job_id, result, processing_ms):
     execute_write(query, (JOB_STATUS_SUCCESS, result, processing_ms, job_id))
 
 
-def mark_job_failed(job_id, error_message, processing_ms):
+def schedule_job_retry(job_id, new_retry_count, error_message):
+    query = """
+    UPDATE jobs
+    SET status = %s,
+        retry_count = %s,
+        error_message = %s,
+        result = NULL,
+        processing_ms = NULL,
+        updated_at = NOW()
+    WHERE id = %s
+    """
+    execute_write(
+        query,
+        (JOB_STATUS_PENDING, new_retry_count, error_message, job_id),
+    )
+
+
+def mark_job_dead(job_id, error_message, processing_ms):
     query = """
     UPDATE jobs
     SET status = %s,
@@ -83,4 +101,4 @@ def mark_job_failed(job_id, error_message, processing_ms):
         updated_at = NOW()
     WHERE id = %s
     """
-    execute_write(query, (JOB_STATUS_FAILED, error_message, processing_ms, job_id))
+    execute_write(query, (JOB_STATUS_DEAD, error_message, processing_ms, job_id))
