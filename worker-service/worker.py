@@ -11,6 +11,7 @@ from db import (
 from logging_config import configure_logging
 from processors.classify import classify_document as run_classify_document, preload_classifier
 from processors.extract import extract_metadata as run_extract_metadata, preload_model
+from processors.summarize import summarize_document as run_summarize_document
 from redis_client import get_redis_client, pop_job_id
 
 logger = logging.getLogger("runq-worker")
@@ -37,11 +38,7 @@ def process_job(job_type, file_path):
     elif job_type == "classify_document":
         result = run_classify_document(content)
     elif job_type == "summarize_document":
-        result = {
-            "processor": "placeholder_summarize",
-            "preview": content[:200],
-            "original_length": len(content),
-        }
+        result = run_summarize_document(content)
     else:
         raise ValueError(f"Unsupported job_type: {job_type}")
 

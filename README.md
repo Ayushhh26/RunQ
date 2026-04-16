@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 6:
+Implemented through Step 7:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -14,6 +14,8 @@ Implemented through Step 6:
 - Step 4: Synthetic document generator (`scripts/generate_data.py`) producing 150 docs
 - Step 5: **`extract_metadata`** uses spaCy `en_core_web_sm` NER (`worker-service/processors/extract.py`); output keys: `persons`, `organizations`, `dates`, `amounts`, `locations`
 - Step 6: **`classify_document`** uses TF-IDF + Linear SVM (`worker-service/processors/classify.py`); train with `scripts/train_classifier.py` → `worker-service/models/classifier.pkl`
+- Step 7: **`summarize_document`** uses extractive TF-IDF sentence scoring (`worker-service/processors/summarize.py`); default top 3 segments
+- Next (per plan): retries + DLQ (Step 8), graceful shutdown + stale reaper (Step 9), filtered job list + metrics + logging, Makefile, load tests
 
 ## Tech Stack
 
@@ -24,6 +26,7 @@ Implemented through Step 6:
 - Data generation: Faker + Python scripts
 - NLP (extract): spaCy `en_core_web_sm` (installed in worker image)
 - ML (classify): scikit-learn TF-IDF + `LinearSVC` (model file loaded at worker startup)
+- Summarization: scikit-learn TF-IDF over sentence segments (extractive)
 
 ## Quick Start
 
@@ -59,6 +62,14 @@ curl -X POST http://localhost:8000/jobs \
   -d '{"job_type":"classify_document","file_path":"documents/invoice_001.txt"}'
 ```
 
+Summarize a document:
+
+```bash
+curl -X POST http://localhost:8000/jobs \
+  -H "Content-Type: application/json" \
+  -d '{"job_type":"summarize_document","file_path":"documents/report_001.txt"}'
+```
+
 Fetch by ID:
 
 ```bash
@@ -70,6 +81,42 @@ Supported `job_type` values:
 - `extract_metadata`
 - `classify_document`
 - `summarize_document`
+
+### Example successful responses
+
+**`extract_metadata`** (shape; entities vary by text):
+
+```json
+{
+  "persons": ["..."],
+  "organizations": ["..."],
+  "dates": ["..."],
+  "amounts": ["..."],
+  "locations": ["..."]
+}
+```
+
+**`classify_document`**:
+
+```json
+{
+  "label": "invoice",
+  "confidence": 0.77,
+  "all_scores": { "invoice": 0.77, "resume": 0.12, "report": 0.11 }
+}
+```
+
+**`summarize_document`** (default 3 sentences; override with env `SUMMARY_TOP_N` on the worker):
+
+```json
+{
+  "summary": ["...", "...", "..."],
+  "original_sentence_count": 13,
+  "compression_ratio": 0.2308
+}
+```
+
+`compression_ratio` is `len(summary) / original_sentence_count` after splitting (see Notes).
 
 ## Synthetic Data
 
@@ -97,4 +144,5 @@ This writes `worker-service/models/classifier.pkl`. Rebuild the worker image (or
 ## Notes
 
 - `documents/` is mounted into both API and worker containers at `/app/documents`.
-- **`extract_metadata`** is real NER output; labels are approximate (small models can mis-tag text). **`classify_document`** uses the trained TF-IDF + SVM model. **`summarize_document`** still uses placeholder logic until Step 7.
+- **`extract_metadata`** is real NER output; labels are approximate (small models can mis-tag text). **`classify_document`** uses the trained TF-IDF + SVM model. **`summarize_document`** scores per-segment TF-IDF sums where segments come from splitting on line breaks and sentence-ending punctuation—bullet lines may count as separate segments.
+- Worker env **`SUMMARY_TOP_N`** (default `3`) controls how many top-scoring segments are returned for `summarize_document`.
