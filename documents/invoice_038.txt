@@ -1,0 +1,14 @@
+Invoice Number: INV-715448
+Vendor: Duarte, Burns and Hernandez
+Client: Washington, Cook and Hines
+Billing Address: 39636 Louis Mountains Suite 627, East Wayneshire, MA 13655
+Issue Date: 2025-07-27
+Due Date: 2025-10-31
+Amount Due: $9,269.49
+
+Line Items:
+- Infrastructure reliability audit
+- Systems integration services
+- Security compliance review
+
+Payment Terms: Net 30. Late payments incur a service charge.

@@ -1,0 +1,14 @@
+Invoice Number: INV-349565
+Vendor: Caldwell-Lewis
+Client: Cummings PLC
+Billing Address: 6311 Gomez Loop, Shieldston, TX 86150
+Issue Date: 2026-02-23
+Due Date: 2026-03-02
+Amount Due: $3,798.35
+
+Line Items:
+- Cloud migration advisory
+- Quarterly maintenance support
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

@@ -1,0 +1,14 @@
+Invoice Number: INV-527398
+Vendor: Daniels-Perry
+Client: Wall Group
+Billing Address: PSC 9096, Box 7054, APO AA 55422
+Issue Date: 2025-12-29
+Due Date: 2026-01-08
+Amount Due: $8,348.04
+
+Line Items:
+- Infrastructure reliability audit
+- Data pipeline implementation
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

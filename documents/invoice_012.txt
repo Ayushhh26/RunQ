@@ -1,0 +1,14 @@
+Invoice Number: INV-109767
+Vendor: Howell-Hart
+Client: Jones and Sons
+Billing Address: 1354 Samuel Plains, Cherylhaven, AL 88039
+Issue Date: 2026-03-21
+Due Date: 2026-06-09
+Amount Due: $10,444.33
+
+Line Items:
+- Quarterly maintenance support
+- Systems integration services
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

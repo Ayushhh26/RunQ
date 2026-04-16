@@ -1,0 +1,14 @@
+Invoice Number: INV-893188
+Vendor: Garrett-Wolf
+Client: Adams and Sons
+Billing Address: PSC 7710, Box 9324, APO AP 02293
+Issue Date: 2025-06-22
+Due Date: 2025-10-29
+Amount Due: $11,645.64
+
+Line Items:
+- Quarterly maintenance support
+- Systems integration services
+- Infrastructure reliability audit
+
+Payment Terms: Net 30. Late payments incur a service charge.

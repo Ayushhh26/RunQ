@@ -1,0 +1,14 @@
+Invoice Number: INV-651499
+Vendor: Smith-Thomas
+Client: Booker, Jones and Harrington
+Billing Address: 158 Finley Road Suite 809, East Crystalport, IN 98381
+Issue Date: 2026-02-28
+Due Date: 2026-04-16
+Amount Due: $1,997.12
+
+Line Items:
+- Systems integration services
+- Infrastructure reliability audit
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

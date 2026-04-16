@@ -1,0 +1,16 @@
+Report Title: Expanded user-facing parallelism
+Author: Shannon Bishop
+Created On: 2026-02-14
+
+Executive Summary:
+This report reviews operational behavior of the job processing system.
+
+Findings:
+- Retry traffic was concentrated in malformed file submissions.
+- Database checkpoints remained stable under sustained load.
+- Worker utilization improved after horizontal scaling.
+
+Recommendations:
+- Schedule periodic stale-job sweeps.
+- Add queue depth alerts for proactive autoscaling.
+- Capture per-job processing stages in metrics.

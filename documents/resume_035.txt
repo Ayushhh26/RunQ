@@ -1,0 +1,16 @@
+Name: Kristin Mendoza
+Location: Kevintown, Croatia
+Email: suzannewilson@example.com
+Phone: 993.763.8546
+
+Professional Summary:
+Engineer with 11 years of experience building backend systems.
+
+Skills:
+Kubernetes, System Design, CI/CD, Terraform, FastAPI, PostgreSQL
+
+Education:
+Insurance account manager Studies, Ward-Andrade University
+
+Experience:
+Led distributed processing initiatives at Garcia-Zavala.

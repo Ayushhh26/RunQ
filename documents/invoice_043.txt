@@ -1,0 +1,14 @@
+Invoice Number: INV-883790
+Vendor: Thompson-Anderson
+Client: Walter, Diaz and Shaw
+Billing Address: 7451 Mccarty Divide, Port Erica, TX 52590
+Issue Date: 2025-05-17
+Due Date: 2025-09-10
+Amount Due: $11,290.35
+
+Line Items:
+- Security compliance review
+- Data pipeline implementation
+- Quarterly maintenance support
+
+Payment Terms: Net 30. Late payments incur a service charge.

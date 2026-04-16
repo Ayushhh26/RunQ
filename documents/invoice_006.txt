@@ -1,0 +1,14 @@
+Invoice Number: INV-665579
+Vendor: Sellers, George and Burns
+Client: Hickman LLC
+Billing Address: 117 Tiffany Place, East Donna, OH 22144
+Issue Date: 2025-06-09
+Due Date: 2026-03-18
+Amount Due: $3,106.31
+
+Line Items:
+- Security compliance review
+- Infrastructure reliability audit
+- Quarterly maintenance support
+
+Payment Terms: Net 30. Late payments incur a service charge.

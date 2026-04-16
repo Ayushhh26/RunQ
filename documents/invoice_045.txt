@@ -1,0 +1,14 @@
+Invoice Number: INV-139019
+Vendor: Ferrell-Wilson
+Client: Clay and Sons
+Billing Address: 869 Nicole Shoal Apt. 796, Antoniostad, IL 58616
+Issue Date: 2025-05-27
+Due Date: 2025-06-13
+Amount Due: $7,540.70
+
+Line Items:
+- Data pipeline implementation
+- Systems integration services
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

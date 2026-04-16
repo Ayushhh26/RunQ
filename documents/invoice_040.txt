@@ -1,0 +1,14 @@
+Invoice Number: INV-897305
+Vendor: Padilla, Garcia and Jackson
+Client: Berger-Williams
+Billing Address: 5623 Knight Turnpike Apt. 221, Harveybury, NM 76936
+Issue Date: 2025-05-18
+Due Date: 2026-06-06
+Amount Due: $3,643.93
+
+Line Items:
+- Quarterly maintenance support
+- Infrastructure reliability audit
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

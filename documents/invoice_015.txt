@@ -1,0 +1,14 @@
+Invoice Number: INV-750810
+Vendor: Moore, Spears and Hancock
+Client: Keith Inc
+Billing Address: 3421 Brennan Walks Suite 337, Kevinbury, IN 03602
+Issue Date: 2026-03-04
+Due Date: 2026-04-14
+Amount Due: $3,799.58
+
+Line Items:
+- Cloud migration advisory
+- Systems integration services
+- Quarterly maintenance support
+
+Payment Terms: Net 30. Late payments incur a service charge.

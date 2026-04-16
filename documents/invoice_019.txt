@@ -1,0 +1,14 @@
+Invoice Number: INV-596171
+Vendor: Jackson, Miller and Robertson
+Client: Harvey, Davis and Crane
+Billing Address: 32003 Carr Trafficway Apt. 769, Lake Heather, NM 52884
+Issue Date: 2025-09-23
+Due Date: 2025-11-18
+Amount Due: $8,699.60
+
+Line Items:
+- Quarterly maintenance support
+- Data pipeline implementation
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

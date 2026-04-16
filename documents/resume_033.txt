@@ -1,0 +1,16 @@
+Name: Joshua Webster
+Location: East Williamport, Djibouti
+Email: barbara53@example.com
+Phone: (483)864-4089
+
+Professional Summary:
+Engineer with 6 years of experience building backend systems.
+
+Skills:
+Terraform, CI/CD, System Design, Kubernetes, Python, Prometheus
+
+Education:
+Surveyor, commercial/residential Studies, Williams-Cooper University
+
+Experience:
+Led distributed processing initiatives at Powers, Floyd and Flores.

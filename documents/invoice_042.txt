@@ -1,0 +1,14 @@
+Invoice Number: INV-790203
+Vendor: Hill-Knight
+Client: Osborne, Beltran and Lozano
+Billing Address: 95339 Byrd Stravenue Apt. 104, Johnsonstad, VA 17725
+Issue Date: 2025-08-01
+Due Date: 2026-06-07
+Amount Due: $5,257.86
+
+Line Items:
+- Security compliance review
+- Cloud migration advisory
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

@@ -1,0 +1,14 @@
+Invoice Number: INV-366314
+Vendor: Scott-Smith
+Client: Santana-Byrd
+Billing Address: 9464 Bruce Flat Suite 713, Armstrongshire, LA 92156
+Issue Date: 2025-06-06
+Due Date: 2025-11-25
+Amount Due: $11,643.41
+
+Line Items:
+- Infrastructure reliability audit
+- Quarterly maintenance support
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

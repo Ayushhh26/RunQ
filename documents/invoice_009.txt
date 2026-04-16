@@ -1,0 +1,14 @@
+Invoice Number: INV-522179
+Vendor: Morgan, Hensley and Wright
+Client: Herrera and Sons
+Billing Address: 3178 Brent Plains Apt. 132, Tuckerborough, VI 53066
+Issue Date: 2026-04-10
+Due Date: 2026-04-16
+Amount Due: $1,567.59
+
+Line Items:
+- Cloud migration advisory
+- Data pipeline implementation
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

@@ -1,0 +1,14 @@
+Invoice Number: INV-795613
+Vendor: Mcmillan and Sons
+Client: Wilson-Rodriguez
+Billing Address: 9353 Wagner Glen Apt. 164, North Matthewberg, SC 34836
+Issue Date: 2026-02-08
+Due Date: 2026-03-18
+Amount Due: $8,940.09
+
+Line Items:
+- Infrastructure reliability audit
+- Data pipeline implementation
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

@@ -1,0 +1,14 @@
+Invoice Number: INV-797416
+Vendor: Brooks-Hernandez
+Client: Jones-Decker
+Billing Address: 528 Brenda Points, Elizabethchester, MI 87708
+Issue Date: 2025-05-19
+Due Date: 2025-11-02
+Amount Due: $1,586.63
+
+Line Items:
+- Quarterly maintenance support
+- Security compliance review
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

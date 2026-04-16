@@ -1,0 +1,14 @@
+Invoice Number: INV-982277
+Vendor: Murray Inc
+Client: Collier, Jimenez and Moran
+Billing Address: 7737 Patrick Rapid Apt. 146, Sarahhaven, KY 00837
+Issue Date: 2025-11-03
+Due Date: 2025-11-23
+Amount Due: $3,352.50
+
+Line Items:
+- Data pipeline implementation
+- Cloud migration advisory
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

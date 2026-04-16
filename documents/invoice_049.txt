@@ -1,0 +1,14 @@
+Invoice Number: INV-846746
+Vendor: James-Harper
+Client: Chavez-Jacobs
+Billing Address: 836 Beasley Loop, Mariafurt, MT 96132
+Issue Date: 2025-11-29
+Due Date: 2026-03-24
+Amount Due: $3,378.12
+
+Line Items:
+- Security compliance review
+- Infrastructure reliability audit
+- Quarterly maintenance support
+
+Payment Terms: Net 30. Late payments incur a service charge.

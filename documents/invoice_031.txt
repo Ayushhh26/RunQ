@@ -1,0 +1,14 @@
+Invoice Number: INV-615633
+Vendor: Ray Ltd
+Client: Hernandez PLC
+Billing Address: USS Mcknight, FPO AE 73648
+Issue Date: 2025-05-26
+Due Date: 2025-06-20
+Amount Due: $5,688.92
+
+Line Items:
+- Data pipeline implementation
+- Systems integration services
+- Security compliance review
+
+Payment Terms: Net 30. Late payments incur a service charge.

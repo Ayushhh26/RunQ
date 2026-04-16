@@ -1,0 +1,14 @@
+Invoice Number: INV-973074
+Vendor: Phillips LLC
+Client: Turner Ltd
+Billing Address: 08427 Monique Ports Suite 777, Jackton, KS 63117
+Issue Date: 2025-11-19
+Due Date: 2026-06-10
+Amount Due: $9,711.61
+
+Line Items:
+- Systems integration services
+- Security compliance review
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

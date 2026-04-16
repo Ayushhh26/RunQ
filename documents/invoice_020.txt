@@ -1,0 +1,14 @@
+Invoice Number: INV-105814
+Vendor: Osborne and Sons
+Client: Brock Ltd
+Billing Address: 317 Laurie Shores, Stephaniemouth, RI 94777
+Issue Date: 2025-07-13
+Due Date: 2026-02-19
+Amount Due: $10,150.80
+
+Line Items:
+- Systems integration services
+- Cloud migration advisory
+- Security compliance review
+
+Payment Terms: Net 30. Late payments incur a service charge.

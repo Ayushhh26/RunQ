@@ -1,0 +1,16 @@
+Name: Maria Cooke
+Location: South Keith, Colombia
+Email: megan90@example.com
+Phone: 9728368876
+
+Professional Summary:
+Engineer with 4 years of experience building backend systems.
+
+Skills:
+Prometheus, Python, Terraform, PostgreSQL, FastAPI, Data Analysis
+
+Education:
+Producer, radio Studies, Jackson-Cunningham University
+
+Experience:
+Led distributed processing initiatives at Carter LLC.

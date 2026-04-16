@@ -1,0 +1,14 @@
+Invoice Number: INV-418862
+Vendor: Powell, Nelson and Fernandez
+Client: Miller-Williams
+Billing Address: 401 Suzanne Villages Apt. 490, South April, NV 36959
+Issue Date: 2025-09-22
+Due Date: 2026-01-24
+Amount Due: $2,291.71
+
+Line Items:
+- Data pipeline implementation
+- Infrastructure reliability audit
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

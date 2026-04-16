@@ -1,0 +1,14 @@
+Invoice Number: INV-392136
+Vendor: Rasmussen LLC
+Client: May-Ross
+Billing Address: Unit 8501 Box 4294, DPO AE 14709
+Issue Date: 2025-12-12
+Due Date: 2026-02-23
+Amount Due: $4,910.68
+
+Line Items:
+- Security compliance review
+- Data pipeline implementation
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

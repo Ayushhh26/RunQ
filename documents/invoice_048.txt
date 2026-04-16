@@ -1,0 +1,14 @@
+Invoice Number: INV-214351
+Vendor: Gordon-Dougherty
+Client: Acosta Ltd
+Billing Address: 007 Simmons Coves Suite 711, Charleneland, DC 36547
+Issue Date: 2026-01-24
+Due Date: 2026-04-06
+Amount Due: $6,947.77
+
+Line Items:
+- Data pipeline implementation
+- Quarterly maintenance support
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

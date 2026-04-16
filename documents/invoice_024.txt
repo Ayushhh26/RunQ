@@ -1,0 +1,14 @@
+Invoice Number: INV-898207
+Vendor: Ramirez-Bean
+Client: King-Miller
+Billing Address: 3100 James Brooks, East David, TN 15494
+Issue Date: 2025-07-01
+Due Date: 2025-10-23
+Amount Due: $9,451.52
+
+Line Items:
+- Cloud migration advisory
+- Infrastructure reliability audit
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

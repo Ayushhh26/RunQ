@@ -1,0 +1,16 @@
+Report Title: Horizontal global neural-net
+Author: Kylie Washington
+Created On: 2026-02-06
+
+Executive Summary:
+This report reviews operational behavior of the job processing system.
+
+Findings:
+- Worker utilization improved after horizontal scaling.
+- Database checkpoints remained stable under sustained load.
+- Retry traffic was concentrated in malformed file submissions.
+
+Recommendations:
+- Add queue depth alerts for proactive autoscaling.
+- Schedule periodic stale-job sweeps.
+- Introduce stricter file schema checks at submission time.

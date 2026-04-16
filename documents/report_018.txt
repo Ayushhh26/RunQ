@@ -1,0 +1,16 @@
+Report Title: Mandatory bottom-line interface
+Author: Karen Perez
+Created On: 2026-01-10
+
+Executive Summary:
+This report reviews operational behavior of the job processing system.
+
+Findings:
+- Document validation reduced downstream failures by 22%.
+- Retry traffic was concentrated in malformed file submissions.
+- Queue latency increased during peak ingestion windows.
+
+Recommendations:
+- Schedule periodic stale-job sweeps.
+- Introduce stricter file schema checks at submission time.
+- Capture per-job processing stages in metrics.

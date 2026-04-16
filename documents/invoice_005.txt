@@ -1,0 +1,14 @@
+Invoice Number: INV-724834
+Vendor: Rice-Maddox
+Client: Frazier Inc
+Billing Address: 514 Moore Alley Suite 828, Port Colleenhaven, PA 26572
+Issue Date: 2025-11-19
+Due Date: 2026-02-07
+Amount Due: $7,213.00
+
+Line Items:
+- Infrastructure reliability audit
+- Security compliance review
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

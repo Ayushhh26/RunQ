@@ -1,0 +1,14 @@
+Invoice Number: INV-549186
+Vendor: Wood, Hunter and Peterson
+Client: Short-Garcia
+Billing Address: USCGC Zimmerman, FPO AA 23587
+Issue Date: 2026-01-26
+Due Date: 2026-03-15
+Amount Due: $1,545.46
+
+Line Items:
+- Cloud migration advisory
+- Infrastructure reliability audit
+- Quarterly maintenance support
+
+Payment Terms: Net 30. Late payments incur a service charge.

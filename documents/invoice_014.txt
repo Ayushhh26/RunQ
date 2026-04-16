@@ -1,0 +1,14 @@
+Invoice Number: INV-839945
+Vendor: Hoffman-Rodriguez
+Client: Mckee, Gardner and Davenport
+Billing Address: 2045 Rachel Fords, Lake Curtis, WI 73886
+Issue Date: 2025-06-13
+Due Date: 2025-11-22
+Amount Due: $12,321.92
+
+Line Items:
+- Systems integration services
+- Cloud migration advisory
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

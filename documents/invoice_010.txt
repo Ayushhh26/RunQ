@@ -1,0 +1,14 @@
+Invoice Number: INV-102260
+Vendor: Baker-Bowers
+Client: Mitchell-Horton
+Billing Address: 34309 Julie Centers Apt. 978, North Susan, CO 24857
+Issue Date: 2026-03-11
+Due Date: 2026-03-26
+Amount Due: $7,724.90
+
+Line Items:
+- Systems integration services
+- Data pipeline implementation
+- Infrastructure reliability audit
+
+Payment Terms: Net 30. Late payments incur a service charge.

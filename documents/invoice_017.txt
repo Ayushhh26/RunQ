@@ -1,0 +1,14 @@
+Invoice Number: INV-924629
+Vendor: Graham-Joyce
+Client: Cruz PLC
+Billing Address: 608 Michael Cliff, Cindyville, VA 39864
+Issue Date: 2025-11-19
+Due Date: 2026-01-29
+Amount Due: $7,790.03
+
+Line Items:
+- Cloud migration advisory
+- Data pipeline implementation
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

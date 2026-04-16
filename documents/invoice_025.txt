@@ -1,0 +1,14 @@
+Invoice Number: INV-833442
+Vendor: Wang-Jackson
+Client: Stuart, Higgins and Strickland
+Billing Address: 90496 David Flat Apt. 931, Melissaville, WY 74678
+Issue Date: 2025-11-07
+Due Date: 2025-12-24
+Amount Due: $4,812.06
+
+Line Items:
+- Quarterly maintenance support
+- Infrastructure reliability audit
+- Security compliance review
+
+Payment Terms: Net 30. Late payments incur a service charge.

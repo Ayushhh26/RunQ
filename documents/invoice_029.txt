@@ -1,0 +1,14 @@
+Invoice Number: INV-460455
+Vendor: Barajas-Pierce
+Client: Warner-Nelson
+Billing Address: 351 James Streets, Hillshire, WV 69266
+Issue Date: 2025-08-28
+Due Date: 2026-02-05
+Amount Due: $12,151.49
+
+Line Items:
+- Infrastructure reliability audit
+- Quarterly maintenance support
+- Data pipeline implementation
+
+Payment Terms: Net 30. Late payments incur a service charge.

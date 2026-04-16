@@ -1,0 +1,16 @@
+Report Title: Monitored multi-state model
+Author: Michelle Jackson
+Created On: 2026-01-14
+
+Executive Summary:
+This report reviews operational behavior of the job processing system.
+
+Findings:
+- Retry traffic was concentrated in malformed file submissions.
+- Worker utilization improved after horizontal scaling.
+- Document validation reduced downstream failures by 22%.
+
+Recommendations:
+- Schedule periodic stale-job sweeps.
+- Capture per-job processing stages in metrics.
+- Add queue depth alerts for proactive autoscaling.

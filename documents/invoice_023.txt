@@ -1,0 +1,14 @@
+Invoice Number: INV-938722
+Vendor: Hurst, Freeman and Nelson
+Client: Johnson-Rogers
+Billing Address: 272 Rebecca Ramp Apt. 162, Whiteview, MS 43407
+Issue Date: 2025-10-28
+Due Date: 2026-04-14
+Amount Due: $3,641.81
+
+Line Items:
+- Quarterly maintenance support
+- Security compliance review
+- Cloud migration advisory
+
+Payment Terms: Net 30. Late payments incur a service charge.

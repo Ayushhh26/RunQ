@@ -1,0 +1,14 @@
+Invoice Number: INV-592738
+Vendor: Johnson-Roberts
+Client: Warner-Gibson
+Billing Address: 936 Amy Rue Apt. 421, East Laurashire, PW 38329
+Issue Date: 2025-09-11
+Due Date: 2026-03-20
+Amount Due: $10,939.75
+
+Line Items:
+- Cloud migration advisory
+- Infrastructure reliability audit
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

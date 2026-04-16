@@ -1,0 +1,14 @@
+Invoice Number: INV-388389
+Vendor: Walker Ltd
+Client: Rhodes PLC
+Billing Address: 01338 Anna Stravenue Suite 379, Lisatown, WV 21427
+Issue Date: 2025-12-05
+Due Date: 2025-12-09
+Amount Due: $9,385.68
+
+Line Items:
+- Security compliance review
+- Systems integration services
+- Infrastructure reliability audit
+
+Payment Terms: Net 30. Late payments incur a service charge.

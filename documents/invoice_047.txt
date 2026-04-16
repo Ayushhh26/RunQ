@@ -1,0 +1,14 @@
+Invoice Number: INV-344316
+Vendor: Schroeder-Kramer
+Client: Smith, Garrison and Thomas
+Billing Address: 10205 Brianna Brook Apt. 402, Foxland, NJ 59257
+Issue Date: 2025-06-29
+Due Date: 2025-09-12
+Amount Due: $6,645.58
+
+Line Items:
+- Systems integration services
+- Data pipeline implementation
+- Security compliance review
+
+Payment Terms: Net 30. Late payments incur a service charge.

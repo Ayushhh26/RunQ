@@ -1,0 +1,14 @@
+Invoice Number: INV-183667
+Vendor: Delacruz Group
+Client: Chavez-Flowers
+Billing Address: 41928 Frank Light Suite 835, East Lydiamouth, MO 35594
+Issue Date: 2025-07-07
+Due Date: 2025-10-14
+Amount Due: $7,565.43
+
+Line Items:
+- Security compliance review
+- Infrastructure reliability audit
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

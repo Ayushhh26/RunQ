@@ -1,0 +1,14 @@
+Invoice Number: INV-765620
+Vendor: Costa-Harrison
+Client: Cook-Santiago
+Billing Address: 7468 Shawn Island Suite 516, Lake Mollymouth, MT 07605
+Issue Date: 2025-06-20
+Due Date: 2026-01-16
+Amount Due: $7,667.28
+
+Line Items:
+- Cloud migration advisory
+- Infrastructure reliability audit
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

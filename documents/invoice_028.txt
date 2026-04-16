@@ -1,0 +1,14 @@
+Invoice Number: INV-835244
+Vendor: Peters-Black
+Client: Miller Ltd
+Billing Address: 777 Christopher Forges, Holtport, TN 76726
+Issue Date: 2025-08-17
+Due Date: 2026-05-09
+Amount Due: $5,086.45
+
+Line Items:
+- Security compliance review
+- Quarterly maintenance support
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

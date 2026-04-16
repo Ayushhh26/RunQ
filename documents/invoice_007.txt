@@ -1,0 +1,14 @@
+Invoice Number: INV-543692
+Vendor: Hickman Ltd
+Client: Harris, Collins and Carney
+Billing Address: 713 Caleb Brooks Apt. 930, Lake Crystalbury, CA 04618
+Issue Date: 2025-07-21
+Due Date: 2026-05-04
+Amount Due: $9,593.63
+
+Line Items:
+- Infrastructure reliability audit
+- Data pipeline implementation
+- Systems integration services
+
+Payment Terms: Net 30. Late payments incur a service charge.

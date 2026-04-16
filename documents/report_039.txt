@@ -1,0 +1,16 @@
+Report Title: Profound high-level approach
+Author: Mr. Jacob Scott Jr.
+Created On: 2026-03-02
+
+Executive Summary:
+This report reviews operational behavior of the job processing system.
+
+Findings:
+- Retry traffic was concentrated in malformed file submissions.
+- Worker utilization improved after horizontal scaling.
+- Queue latency increased during peak ingestion windows.
+
+Recommendations:
+- Add queue depth alerts for proactive autoscaling.
+- Capture per-job processing stages in metrics.
+- Introduce stricter file schema checks at submission time.
