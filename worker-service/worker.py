@@ -9,6 +9,7 @@ from db import (
     mark_job_success,
 )
 from logging_config import configure_logging
+from processors.extract import extract_metadata as run_extract_metadata, preload_model
 from redis_client import get_redis_client, pop_job_id
 
 logger = logging.getLogger("runq-worker")
@@ -30,9 +31,8 @@ def process_job(job_type, file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
 
-    # Step 3 placeholder processors. Step 5+ replace this branch with real logic.
     if job_type == "extract_metadata":
-        result = {"processor": "placeholder_extract", "character_count": len(content)}
+        result = run_extract_metadata(content)
     elif job_type == "classify_document":
         result = {"processor": "placeholder_classify", "word_count": len(content.split())}
     elif job_type == "summarize_document":
@@ -76,4 +76,7 @@ def run_worker_loop():
 if __name__ == "__main__":
     configure_logging()
     wait_for_redis()
+    logger.info("Loading spaCy model en_core_web_sm...")
+    preload_model()
+    logger.info("spaCy model ready")
     run_worker_loop()

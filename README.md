@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 4:
+Implemented through Step 5:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -12,6 +12,7 @@ Implemented through Step 4:
 - Step 2.5: Sample document mounting for API/worker
 - Step 3: Worker queue consumption with lifecycle updates (`pending -> running -> success/failed`)
 - Step 4: Synthetic document generator (`scripts/generate_data.py`) producing 150 docs
+- Step 5: **`extract_metadata`** uses spaCy `en_core_web_sm` NER (`worker-service/processors/extract.py`); output keys: `persons`, `organizations`, `dates`, `amounts`, `locations`
 
 ## Tech Stack
 
@@ -20,6 +21,7 @@ Implemented through Step 4:
 - Database: PostgreSQL
 - Containers: Docker Compose
 - Data generation: Faker + Python scripts
+- NLP (extract): spaCy `en_core_web_sm` (installed in worker image)
 
 ## Quick Start
 
@@ -76,4 +78,4 @@ Output in `documents/`:
 ## Notes
 
 - `documents/` is mounted into both API and worker containers at `/app/documents`.
-- Current worker processing is placeholder logic; real NLP/classification/summarization processors come in later steps.
+- **`extract_metadata`** is real NER output; labels are approximate (small models can mis-tag text). **`classify_document`** and **`summarize_document`** still use placeholder logic until later steps.
