@@ -1,0 +1,12 @@
+Invoice Number: INV-2026-0416
+Client: Acme Industrial Services
+Issue Date: 2026-04-10
+Due Date: 2026-05-10
+Amount Due: $5,200.00
+
+Line Items:
+- Workflow automation consulting
+- Queue performance audit
+- Production support
+
+Payment Terms: Net 30 days.

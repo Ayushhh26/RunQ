@@ -1,0 +1,12 @@
+Name: Jordan Lee
+Location: New York, NY
+Email: jordan.lee@example.com
+
+Summary:
+Backend engineer with 5 years of experience building distributed systems.
+
+Skills:
+Python, FastAPI, PostgreSQL, Redis, Docker, CI/CD
+
+Experience:
+Built async processing pipelines handling over 2 million jobs per month.
