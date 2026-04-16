@@ -1,9 +1,11 @@
 from fastapi import FastAPI
-import os
-import psycopg2
-import redis
+
+from db.connection import get_connection
+from redis_client import get_redis_client
+from routes.jobs import router as jobs_router
 
 app = FastAPI()
+app.include_router(jobs_router)
 
 
 @app.get("/")
@@ -17,23 +19,14 @@ def health():
     redis_status = "disconnected"
 
     try:
-        conn = psycopg2.connect(
-            host=os.getenv("POSTGRES_HOST", "postgres"),
-            dbname=os.getenv("POSTGRES_DB", "runq"),
-            user=os.getenv("POSTGRES_USER", "runq"),
-            password=os.getenv("POSTGRES_PASSWORD", "runq"),
-        )
+        conn = get_connection()
         conn.close()
         postgres_status = "connected"
     except Exception:
         pass
 
     try:
-        r = redis.Redis(
-            host=os.getenv("REDIS_HOST", "redis"),
-            port=6379,
-            decode_responses=True,
-        )
+        r = get_redis_client()
         r.ping()
         redis_status = "connected"
     except Exception:
