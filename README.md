@@ -1,6 +1,6 @@
 # RunQ
 
-Distributed job processing system with async workers, Redis queueing, PostgreSQL job state, reliability controls, and observability.
+RunQ is a distributed backend that accepts document-processing jobs through an API, processes them asynchronously with Redis-backed workers, stores lifecycle/results in PostgreSQL, and exposes health, metrics, retries, and dead-letter recovery for reliability.
 
 ## Architecture
 
