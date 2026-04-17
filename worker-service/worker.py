@@ -1,5 +1,6 @@
 import json
 import logging
+import signal
 import time
 
 from config import (
@@ -18,9 +19,22 @@ from logging_config import configure_logging
 from processors.classify import classify_document as run_classify_document, preload_classifier
 from processors.extract import extract_metadata as run_extract_metadata, preload_model
 from processors.summarize import summarize_document as run_summarize_document
+from reaper import requeue_stale_running_jobs
 from redis_client import enqueue_job, get_redis_client, pop_job_id, push_dlq
 
 logger = logging.getLogger("runq-worker")
+_shutdown_requested = False
+
+
+def _request_shutdown(signum, _frame):
+    global _shutdown_requested
+    _shutdown_requested = True
+    logger.warning("Received signal %s; will stop after current job", signum)
+
+
+def install_signal_handlers():
+    signal.signal(signal.SIGTERM, _request_shutdown)
+    signal.signal(signal.SIGINT, _request_shutdown)
 
 
 def wait_for_redis():
@@ -57,7 +71,7 @@ def process_job(job_type, file_path):
 
 
 def run_worker_loop():
-    while True:
+    while not _shutdown_requested:
         job_id = pop_job_id(timeout=5)
         if not job_id:
             continue
@@ -106,10 +120,12 @@ def run_worker_loop():
                 )
                 mark_job_dead(job_id, err_msg, processing_ms)
                 push_dlq(job_id)
+    logger.info("Worker loop exited gracefully")
 
 
 if __name__ == "__main__":
     configure_logging()
+    install_signal_handlers()
     if RUNQ_FORCE_FAIL_PATH:
         logger.warning(
             "RUNQ_FORCE_FAIL_PATH is set — jobs for %r will fail on purpose",
@@ -122,4 +138,5 @@ if __name__ == "__main__":
     logger.info("Loading document classifier...")
     preload_classifier()
     logger.info("Classifier ready")
+    requeue_stale_running_jobs()
     run_worker_loop()

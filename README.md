@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 8:
+Implemented through Step 9:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -16,7 +16,8 @@ Implemented through Step 8:
 - Step 6: **`classify_document`** uses TF-IDF + Linear SVM (`worker-service/processors/classify.py`); train with `scripts/train_classifier.py` → `worker-service/models/classifier.pkl`
 - Step 7: **`summarize_document`** uses extractive TF-IDF sentence scoring (`worker-service/processors/summarize.py`); default top 3 segments
 - Step 8: **Retries + DLQ** — worker backs off **1s / 2s / 4s** between attempts, re-enqueues after up to **3** consecutive failures; a **4th** failure sets status **`dead`** and pushes the job id to Redis **`runq:dlq`**
-- Next (per plan): graceful shutdown + stale reaper (Step 9), filtered job list + metrics + logging, Makefile, load tests
+- Step 9: **Graceful shutdown + stale reaper** — worker handles `SIGTERM`/`SIGINT` by finishing current job before exit; startup reaper re-queues `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
+- Next (per plan): filtered job list + metrics + structured logging, Makefile, load tests
 
 ## Tech Stack
 
@@ -147,6 +148,12 @@ Supported `job_type` values:
    unset RUNQ_FORCE_FAIL_PATH
    docker compose up -d --build worker
    ```
+
+### Graceful shutdown and stale-job recovery (Step 9)
+
+- Worker traps `SIGTERM` / `SIGINT` and exits loop only after current in-flight job finishes.
+- On startup, reaper checks for `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS` (default `300`) and re-queues them.
+- Reaper marks recovered jobs back to `pending` with an explanatory `error_message`, then pushes job ids back to `runq:queue`.
 
 ## Synthetic Data
 

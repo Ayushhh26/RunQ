@@ -102,3 +102,33 @@ def mark_job_dead(job_id, error_message, processing_ms):
     WHERE id = %s
     """
     execute_write(query, (JOB_STATUS_DEAD, error_message, processing_ms, job_id))
+
+
+def get_stale_running_job_ids(stale_seconds):
+    query = """
+    SELECT id
+    FROM jobs
+    WHERE status = %s
+      AND updated_at < NOW() - (%s * INTERVAL '1 second')
+    ORDER BY updated_at ASC
+    """
+    rows = fetch_all(query, (JOB_STATUS_RUNNING, stale_seconds))
+    return [row[0] for row in rows]
+
+
+def mark_job_pending_from_stale(job_id):
+    query = """
+    UPDATE jobs
+    SET status = %s,
+        error_message = %s,
+        updated_at = NOW()
+    WHERE id = %s
+    """
+    execute_write(
+        query,
+        (
+            JOB_STATUS_PENDING,
+            "Recovered from stale running state by reaper",
+            job_id,
+        ),
+    )

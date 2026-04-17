@@ -42,3 +42,6 @@ MAX_JOB_RETRY_ATTEMPTS = 3
 # Backoff before re-queue after failure attempts 1..MAX (seconds); length must match MAX.
 RETRY_BACKOFF_SECONDS = (1, 2, 4)
 assert len(RETRY_BACKOFF_SECONDS) == MAX_JOB_RETRY_ATTEMPTS
+
+# Step 9: running jobs older than this threshold are considered stale and re-queued.
+STALE_JOB_THRESHOLD_SECONDS = int(os.getenv("STALE_JOB_THRESHOLD_SECONDS", "300"))
