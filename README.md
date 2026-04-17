@@ -1,47 +1,65 @@
 # RunQ
 
-Distributed job processing system with async workers, Redis queueing, and PostgreSQL-backed job state.
+Distributed job processing system with async workers, Redis queueing, PostgreSQL job state, reliability controls, and observability.
 
-## Current Status
+## Architecture
 
-Implemented through Step 14:
+```text
+Client
+  └─> FastAPI (api-service)
+       ├─ POST /jobs
+       ├─ GET /jobs/{id}
+       ├─ GET /jobs?status=&job_type=&page=&per_page=
+       ├─ GET /health
+       └─ GET /metrics
+             │
+             ├─ PostgreSQL (jobs table: lifecycle + results + retry_count)
+             └─ Redis
+                ├─ runq:queue (main FIFO queue)
+                └─ runq:dlq (dead-letter queue)
 
-- Step 0: Dockerized API, worker, Redis, and Postgres
-- Step 1: Database schema + service-local DB/config modules
-- Step 2: `POST /jobs` and `GET /jobs/{job_id}`
-- Step 2.5: Sample document mounting for API/worker
-- Step 3: Worker queue consumption with lifecycle updates (`pending -> running -> success/failed`)
-- Step 4: Synthetic document generator (`scripts/generate_data.py`) producing 150 docs
-- Step 5: **`extract_metadata`** uses spaCy `en_core_web_sm` NER (`worker-service/processors/extract.py`); output keys: `persons`, `organizations`, `dates`, `amounts`, `locations`
-- Step 6: **`classify_document`** uses TF-IDF + Linear SVM (`worker-service/processors/classify.py`); train with `scripts/train_classifier.py` → `worker-service/models/classifier.pkl`
-- Step 7: **`summarize_document`** uses extractive TF-IDF sentence scoring (`worker-service/processors/summarize.py`); default top 3 segments
-- Step 8: **Retries + DLQ** — worker backs off **1s / 2s / 4s** between attempts, re-enqueues after up to **3** consecutive failures; a **4th** failure sets status **`dead`** and pushes the job id to Redis **`runq:dlq`**
-- Step 9: **Graceful shutdown + stale reaper** — worker handles `SIGTERM`/`SIGINT` by finishing current job before exit; startup reaper re-queues `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
-- Step 10: **`GET /jobs` with filters + pagination** — supports `status`, `job_type`, `page`, `per_page`, and returns `total`
-- Step 11: **Observability endpoints** — `GET /health` now reports postgres/redis connectivity + `active_workers` + `queue_depth`; `GET /metrics` reports totals, status counts, success rate, average processing time, and jobs/minute
-- Step 12: **Structured JSON logging** — API and worker emit machine-readable JSON events (`job_submitted`, `job_started`, `job_success`, `job_failure`, retry/DLQ and reaper events) with timestamps and `job_id`
-- Step 13: **Makefile workflow** — added `start`, `stop`, `test`, `generate-data`, `train`, `load-test`, `logs`, `scale`
-- Step 14: **Load testing + scaling validation** — `scripts/load_test.py` submits/polls high-volume jobs and reports throughput/failure metrics; measured 1 vs 2 vs 4 worker scaling
-- Next (per plan): final README polish (Step 15)
+Redis runq:queue
+  └─> Worker(s) (worker-service)
+       ├─ extract_metadata (spaCy NER)
+       ├─ classify_document (TF-IDF + Linear SVM)
+       └─ summarize_document (extractive TF-IDF sentence scoring)
+```
 
 ## Tech Stack
 
-- API: FastAPI
-- Queue: Redis list (`runq:queue`), dead-letter list (`runq:dlq`)
-- Database: PostgreSQL
-- Containers: Docker Compose
-- Data generation: Faker + Python scripts
-- NLP (extract): spaCy `en_core_web_sm` (installed in worker image)
-- ML (classify): scikit-learn TF-IDF + `LinearSVC` (model file loaded at worker startup)
-- Summarization: scikit-learn TF-IDF over sentence segments (extractive)
+| Layer | Technology |
+| --- | --- |
+| API | FastAPI |
+| Queue | Redis lists (`runq:queue`, `runq:dlq`) |
+| Database | PostgreSQL |
+| NLP extract | spaCy `en_core_web_sm` |
+| Classification | scikit-learn (`TfidfVectorizer` + `LinearSVC`) |
+| Summarization | TF-IDF sentence scoring |
+| Tooling | Docker Compose, Makefile |
+
+## Current Status
+
+Implemented through **Step 15** (MVP complete):
+
+- Async pipeline + job lifecycle (`pending -> running -> success/failed/dead`)
+- 3 job types working end-to-end
+- Retries with backoff and DLQ
+- Graceful shutdown + stale running-job reaper
+- Job query with filters + pagination
+- Health and metrics endpoints
+- Structured JSON logs in API + worker
+- Makefile workflow and load-testing script
+- Scaling benchmark (1 vs 2 vs 4 workers)
 
 ## Quick Start
 
 From repo root:
 
 ```bash
-docker compose up --build -d
-docker compose ps
+make generate-data
+make train
+make start
+make test
 ```
 
 Health checks:
@@ -52,9 +70,28 @@ curl http://localhost:8000/health
 curl http://localhost:8000/metrics
 ```
 
-## Job API (Current)
+Stop:
 
-Create a job:
+```bash
+make stop
+```
+
+## Makefile Commands
+
+- `make start` - build and start stack
+- `make stop` - stop stack
+- `make test` - basic API checks
+- `make generate-data` - generate synthetic documents
+- `make train` - train classifier and write `worker-service/models/classifier.pkl`
+- `make load-test` - run load test script
+- `make logs` - stream compose logs
+- `make scale` - scale workers to 4
+
+## API Reference
+
+### Submit job
+
+`POST /jobs`
 
 ```bash
 curl -X POST http://localhost:8000/jobs \
@@ -62,44 +99,37 @@ curl -X POST http://localhost:8000/jobs \
   -d '{"job_type":"extract_metadata","file_path":"documents/sample_invoice.txt"}'
 ```
 
-Classify a document:
+Response:
 
-```bash
-curl -X POST http://localhost:8000/jobs \
-  -H "Content-Type: application/json" \
-  -d '{"job_type":"classify_document","file_path":"documents/invoice_001.txt"}'
+```json
+{
+  "job_id": "a1b2c3d4-....",
+  "status": "pending"
+}
 ```
 
-Summarize a document:
+### Get job by ID
 
-```bash
-curl -X POST http://localhost:8000/jobs \
-  -H "Content-Type: application/json" \
-  -d '{"job_type":"summarize_document","file_path":"documents/report_001.txt"}'
-```
-
-Fetch by ID:
+`GET /jobs/{job_id}`
 
 ```bash
 curl http://localhost:8000/jobs/<job_id>
 ```
 
-List jobs with filters + pagination:
+### List jobs (filters + pagination)
+
+`GET /jobs?status=&job_type=&page=&per_page=`
 
 ```bash
 curl "http://localhost:8000/jobs?status=dead&page=1&per_page=20"
 curl "http://localhost:8000/jobs?job_type=classify_document&page=1&per_page=10"
 ```
 
-Supported `job_type` values:
+### Health
 
-- `extract_metadata`
-- `classify_document`
-- `summarize_document`
+`GET /health`
 
-### Example successful responses
-
-**`GET /health`**:
+Example:
 
 ```json
 {
@@ -111,46 +141,28 @@ Supported `job_type` values:
 }
 ```
 
-**`GET /metrics`**:
+### Metrics
+
+`GET /metrics`
+
+Example:
 
 ```json
 {
-  "total_jobs": 19,
-  "success": 13,
+  "total_jobs": 3023,
+  "success": 3017,
   "failed": 0,
   "dead": 1,
-  "success_rate": "68.4%",
-  "avg_processing_time_ms": 17.36,
+  "success_rate": "99.8%",
+  "avg_processing_time_ms": 9.02,
   "queue_depth": 0,
-  "jobs_per_minute": 0.0
+  "jobs_per_minute": 2000.0
 }
 ```
 
-**`GET /jobs`**:
+## Sample Processor Outputs
 
-```json
-{
-  "items": [
-    {
-      "id": "...",
-      "job_type": "classify_document",
-      "status": "success",
-      "retry_count": 0,
-      "file_path": "documents/invoice_001.txt",
-      "result": { "label": "invoice", "confidence": 0.77, "all_scores": { "...": 0.11 } },
-      "error_message": null,
-      "processing_ms": 12,
-      "created_at": "2026-01-01T00:00:00Z",
-      "updated_at": "2026-01-01T00:00:01Z"
-    }
-  ],
-  "page": 1,
-  "per_page": 10,
-  "total": 42
-}
-```
-
-**`extract_metadata`** (shape; entities vary by text):
+`extract_metadata` (shape; entities vary by text):
 
 ```json
 {
@@ -162,17 +174,21 @@ Supported `job_type` values:
 }
 ```
 
-**`classify_document`**:
+`classify_document`:
 
 ```json
 {
   "label": "invoice",
   "confidence": 0.77,
-  "all_scores": { "invoice": 0.77, "resume": 0.12, "report": 0.11 }
+  "all_scores": {
+    "invoice": 0.77,
+    "resume": 0.12,
+    "report": 0.11
+  }
 }
 ```
 
-**`summarize_document`** (default 3 sentences; override with env `SUMMARY_TOP_N` on the worker):
+`summarize_document` (`SUMMARY_TOP_N` default `3`):
 
 ```json
 {
@@ -182,114 +198,89 @@ Supported `job_type` values:
 }
 ```
 
-`compression_ratio` is `len(summary) / original_sentence_count` after splitting (see Notes).
+## Reliability Features
 
-### Retries and dead-letter queue (Step 8)
+- **Retries + backoff**: `1s`, `2s`, `4s` (`MAX_JOB_RETRY_ATTEMPTS=3`)
+- **DLQ**: job goes to `runq:dlq` and status becomes `dead` after retry limit
+- **Graceful shutdown**: worker handles `SIGTERM`/`SIGINT`, finishes current job before exit
+- **Stale reaper**: startup recovery for `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
+- **Optional failure injection for testing**: `RUNQ_FORCE_FAIL_PATH`
 
-- On processing failure, the worker increments **`retry_count`**, sleeps **1s → 2s → 4s** (per attempt), sets status back to **`pending`**, and **re-enqueues** the job id — up to **3** retries after failures (**4** processing tries total before the DLQ).
-- After the **4th** failure, status becomes **`dead`**, the last error is stored, and the job id is pushed to **`runq:dlq`**.
-- Tune worker constants in `worker-service/config.py`: **`MAX_JOB_RETRY_ATTEMPTS`**, **`RETRY_BACKOFF_SECONDS`**.
-- Inspect DLQ length: `docker compose exec redis redis-cli LLEN runq:dlq`
+DLQ size check:
 
-#### Testing retries + DLQ (optional, env-gated)
+```bash
+docker compose exec redis redis-cli LLEN runq:dlq
+```
 
-1. Set **`RUNQ_FORCE_FAIL_PATH`** on the worker to a path that exists and matches what you submit (e.g. `documents/report_001.txt`). Example:
+## Structured Logging
 
-   ```bash
-   export RUNQ_FORCE_FAIL_PATH=documents/report_001.txt
-   docker compose up -d --build worker
-   ```
+API and worker emit JSON log events.
 
-2. Submit any job type for that file (e.g. `summarize_document` or `classify_document`).
+Typical fields:
 
-3. Poll **`GET /jobs/{id}`**: expect **`retry_count`** `1 → 2 → 3` with **`pending`** between attempts, then **`dead`** after the fourth failure.
+- `timestamp`
+- `service`
+- `event`
+- `job_id` (when relevant)
+- `status`
+- `processing_ms`
+- `error`
 
-4. Confirm DLQ grows: `docker compose exec redis redis-cli LLEN runq:dlq`
+Common events:
 
-5. **Unset** the variable and restart the worker when done:
+- API: `job_submitted`, `job_get`, `jobs_list`, validation rejections
+- Worker: `job_started`, `job_success`, `job_failure`, `job_retry_scheduled`, `job_moved_to_dlq`, reaper events
 
-   ```bash
-   unset RUNQ_FORCE_FAIL_PATH
-   docker compose up -d --build worker
-   ```
+## Load Test Results
 
-### Graceful shutdown and stale-job recovery (Step 9)
-
-- Worker traps `SIGTERM` / `SIGINT` and exits loop only after current in-flight job finishes.
-- On startup, reaper checks for `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS` (default `300`) and re-queues them.
-- Reaper marks recovered jobs back to `pending` with an explanatory `error_message`, then pushes job ids back to `runq:queue`.
-
-### Structured logging (Step 12)
-
-- API and worker now emit JSON log lines for lifecycle events to make debugging and aggregation straightforward.
-- Core events include:
-  - API: `job_submitted`, `job_get`, `jobs_list`, validation rejections
-  - Worker: `job_started`, `job_success`, `job_failure`, `job_retry_scheduled`, `job_moved_to_dlq`, reaper/model lifecycle events
-- Typical fields: `timestamp`, `service`, `event`, plus contextual keys like `job_id`, `status`, `processing_ms`, and `error`.
-
-### Load testing + scaling (Step 14)
+Benchmark setup:
 
 - Script: `scripts/load_test.py`
-- What it does:
-  - submits N jobs (default `1000`) to `POST /jobs`
-  - polls each job until terminal state (`success` / `failed` / `dead`)
-  - reports totals, status counts, elapsed time, throughput (`jobs/min`), average processing time, failure rate
+- Jobs per run: `1000`
+- Job type: `classify_document`
+- Inputs: `documents/invoice_*.txt`
 
-Run one benchmark:
+Observed results:
 
-```bash
-python3 scripts/load_test.py --count 1000 --job-type classify_document --file-pattern "invoice_*.txt"
-```
+- **worker=1**: elapsed `7.39s`, throughput `8123.84 jobs/min`, avg processing `7.40ms`, failure rate `0.0%`
+- **worker=2**: elapsed `6.13s`, throughput `9787.46 jobs/min`, avg processing `10.46ms`, failure rate `0.0%`
+- **worker=4**: elapsed `4.62s`, throughput `12987.54 jobs/min`, avg processing `9.09ms`, failure rate `0.0%`
 
-Scale workers and compare:
-
-```bash
-docker compose up -d --scale worker=1
-python3 scripts/load_test.py --count 1000 --label worker=1
-
-docker compose up -d --scale worker=2
-python3 scripts/load_test.py --count 1000 --label worker=2
-
-docker compose up -d --scale worker=4
-python3 scripts/load_test.py --count 1000 --label worker=4
-```
-
-Observed results on this setup (`classify_document`, 1000 jobs each):
-
-- worker=1: elapsed `7.39s`, throughput `8123.84 jobs/min`, avg processing `7.40ms`, failure rate `0.0%`
-- worker=2: elapsed `6.13s`, throughput `9787.46 jobs/min`, avg processing `10.46ms`, failure rate `0.0%`
-- worker=4: elapsed `4.62s`, throughput `12987.54 jobs/min`, avg processing `9.09ms`, failure rate `0.0%`
-
-Cross-check after benchmark run:
+Cross-check:
 
 - `/metrics`: `total_jobs=3023`, `success=3017`, `dead=1`, `queue_depth=0`
-- DB counts matched status totals (`success=3017`, `dead=1`, `pending=5`)
+- DB grouped counts matched status totals
 
-## Synthetic Data
+## Design Decisions and Tradeoffs
 
-Generate or regenerate corpus:
+- **Redis list queue vs RabbitMQ/Kafka**
+  - Chosen: Redis list for simplicity and speed in a single-node dev setup.
+  - Tradeoff: fewer advanced durability/routing features than dedicated brokers.
+- **PostgreSQL as source of truth for job state**
+  - Chosen for queryability, durability, and auditability.
+  - Tradeoff: more DB writes than a Redis-only approach.
+- **spaCy small model (`en_core_web_sm`)**
+  - Chosen for CPU-friendly local execution.
+  - Tradeoff: lower NER accuracy vs larger models.
+- **TF-IDF + Linear SVM for classification**
+  - Chosen for fast, deterministic CPU inference and simple retraining.
+  - Tradeoff: less semantic power than transformer-based models.
+- **Extractive TF-IDF summarization**
+  - Chosen for deterministic behavior and no external dependency.
+  - Tradeoff: no abstractive rewriting.
+- **Backoff retries + DLQ**
+  - Chosen to avoid silent loss and make failures observable.
+  - Tradeoff: more state transitions and ops logic.
 
-```bash
-python3 scripts/generate_data.py
-```
+## What I’d Add Next
 
-Output in `documents/`:
-
-- `invoice_001.txt` ... `invoice_050.txt`
-- `resume_001.txt` ... `resume_050.txt`
-- `report_001.txt` ... `report_050.txt`
-
-Train the classifier (after generating or updating documents):
-
-```bash
-pip install -r scripts/requirements.txt
-python scripts/train_classifier.py
-```
-
-This writes `worker-service/models/classifier.pkl`. Rebuild the worker image (or restart) after retraining.
+- Full automated test suite (`pytest`) for API, worker, and failure paths
+- Real-time dashboards and alerting (Prometheus/Grafana)
+- Persistent benchmark result artifacts + trend tracking
+- Auth/rate-limits and multi-tenant queue isolation
+- Optional broker abstraction (Redis/RabbitMQ)
 
 ## Notes
 
-- `documents/` is mounted into both API and worker containers at `/app/documents`.
-- **`extract_metadata`** is real NER output; labels are approximate (small models can mis-tag text). **`classify_document`** uses the trained TF-IDF + SVM model. **`summarize_document`** scores per-segment TF-IDF sums where segments come from splitting on line breaks and sentence-ending punctuation—bullet lines may count as separate segments.
-- Worker env **`SUMMARY_TOP_N`** (default `3`) controls how many top-scoring segments are returned for `summarize_document`.
+- `documents/` is mounted into API and worker at `/app/documents`.
+- `RUNQ_FORCE_FAIL_PATH` is for local failure-path validation and should remain unset in normal runs.
