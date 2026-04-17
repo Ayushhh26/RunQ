@@ -49,3 +49,49 @@ def get_job_by_id(job_id):
     WHERE id = %s
     """
     return fetch_one(query, (str(job_id),))
+
+
+def list_jobs(status=None, job_type=None, page=1, per_page=20):
+    where_clauses = []
+    params = []
+
+    if status:
+        where_clauses.append("status = %s")
+        params.append(status)
+    if job_type:
+        where_clauses.append("job_type = %s")
+        params.append(job_type)
+
+    where_sql = ""
+    if where_clauses:
+        where_sql = "WHERE " + " AND ".join(where_clauses)
+
+    count_query = f"""
+    SELECT COUNT(*) AS total
+    FROM jobs
+    {where_sql}
+    """
+    count_row = fetch_one(count_query, tuple(params) if params else None)
+    total = int(count_row["total"])
+
+    offset = (page - 1) * per_page
+    query = f"""
+    SELECT
+        id,
+        job_type,
+        status,
+        retry_count,
+        file_path,
+        result,
+        error_message,
+        processing_ms,
+        created_at,
+        updated_at
+    FROM jobs
+    {where_sql}
+    ORDER BY created_at DESC, id DESC
+    LIMIT %s OFFSET %s
+    """
+    query_params = [*params, per_page, offset]
+    rows = fetch_all(query, tuple(query_params))
+    return rows, total

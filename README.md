@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 9:
+Implemented through Step 10:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -17,7 +17,8 @@ Implemented through Step 9:
 - Step 7: **`summarize_document`** uses extractive TF-IDF sentence scoring (`worker-service/processors/summarize.py`); default top 3 segments
 - Step 8: **Retries + DLQ** — worker backs off **1s / 2s / 4s** between attempts, re-enqueues after up to **3** consecutive failures; a **4th** failure sets status **`dead`** and pushes the job id to Redis **`runq:dlq`**
 - Step 9: **Graceful shutdown + stale reaper** — worker handles `SIGTERM`/`SIGINT` by finishing current job before exit; startup reaper re-queues `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
-- Next (per plan): filtered job list + metrics + structured logging, Makefile, load tests
+- Step 10: **`GET /jobs` with filters + pagination** — supports `status`, `job_type`, `page`, `per_page`, and returns `total`
+- Next (per plan): observability endpoints (`/health`, `/metrics`) + structured logging, Makefile, load tests
 
 ## Tech Stack
 
@@ -78,6 +79,13 @@ Fetch by ID:
 curl http://localhost:8000/jobs/<job_id>
 ```
 
+List jobs with filters + pagination:
+
+```bash
+curl "http://localhost:8000/jobs?status=dead&page=1&per_page=20"
+curl "http://localhost:8000/jobs?job_type=classify_document&page=1&per_page=10"
+```
+
 Supported `job_type` values:
 
 - `extract_metadata`
@@ -85,6 +93,30 @@ Supported `job_type` values:
 - `summarize_document`
 
 ### Example successful responses
+
+**`GET /jobs`**:
+
+```json
+{
+  "items": [
+    {
+      "id": "...",
+      "job_type": "classify_document",
+      "status": "success",
+      "retry_count": 0,
+      "file_path": "documents/invoice_001.txt",
+      "result": { "label": "invoice", "confidence": 0.77, "all_scores": { "...": 0.11 } },
+      "error_message": null,
+      "processing_ms": 12,
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:01Z"
+    }
+  ],
+  "page": 1,
+  "per_page": 10,
+  "total": 42
+}
+```
 
 **`extract_metadata`** (shape; entities vary by text):
 

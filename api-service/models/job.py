@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from config import VALID_JOB_TYPES
+from config import VALID_JOB_STATUSES, VALID_JOB_TYPES
 
 
 class CreateJobRequest(BaseModel):
@@ -30,5 +30,16 @@ class JobResponse(BaseModel):
     updated_at: datetime
 
 
+class ListJobsResponse(BaseModel):
+    items: list[JobResponse]
+    page: int
+    per_page: int
+    total: int
+
+
 def is_valid_job_type(job_type: str) -> bool:
     return job_type in VALID_JOB_TYPES
+
+
+def is_valid_job_status(status: str) -> bool:
+    return status in VALID_JOB_STATUSES
