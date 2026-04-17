@@ -37,7 +37,6 @@ services:
 
   worker:
     build: ./worker-service
-    container_name: runq-worker
     volumes:
       - ./documents:/app/documents:ro
     environment:

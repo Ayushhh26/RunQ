@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 13:
+Implemented through Step 14:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -21,7 +21,8 @@ Implemented through Step 13:
 - Step 11: **Observability endpoints** — `GET /health` now reports postgres/redis connectivity + `active_workers` + `queue_depth`; `GET /metrics` reports totals, status counts, success rate, average processing time, and jobs/minute
 - Step 12: **Structured JSON logging** — API and worker emit machine-readable JSON events (`job_submitted`, `job_started`, `job_success`, `job_failure`, retry/DLQ and reaper events) with timestamps and `job_id`
 - Step 13: **Makefile workflow** — added `start`, `stop`, `test`, `generate-data`, `train`, `load-test`, `logs`, `scale`
-- Next (per plan): load testing (Step 14), final README polish (Step 15)
+- Step 14: **Load testing + scaling validation** — `scripts/load_test.py` submits/polls high-volume jobs and reports throughput/failure metrics; measured 1 vs 2 vs 4 worker scaling
+- Next (per plan): final README polish (Step 15)
 
 ## Tech Stack
 
@@ -225,6 +226,44 @@ Supported `job_type` values:
   - API: `job_submitted`, `job_get`, `jobs_list`, validation rejections
   - Worker: `job_started`, `job_success`, `job_failure`, `job_retry_scheduled`, `job_moved_to_dlq`, reaper/model lifecycle events
 - Typical fields: `timestamp`, `service`, `event`, plus contextual keys like `job_id`, `status`, `processing_ms`, and `error`.
+
+### Load testing + scaling (Step 14)
+
+- Script: `scripts/load_test.py`
+- What it does:
+  - submits N jobs (default `1000`) to `POST /jobs`
+  - polls each job until terminal state (`success` / `failed` / `dead`)
+  - reports totals, status counts, elapsed time, throughput (`jobs/min`), average processing time, failure rate
+
+Run one benchmark:
+
+```bash
+python3 scripts/load_test.py --count 1000 --job-type classify_document --file-pattern "invoice_*.txt"
+```
+
+Scale workers and compare:
+
+```bash
+docker compose up -d --scale worker=1
+python3 scripts/load_test.py --count 1000 --label worker=1
+
+docker compose up -d --scale worker=2
+python3 scripts/load_test.py --count 1000 --label worker=2
+
+docker compose up -d --scale worker=4
+python3 scripts/load_test.py --count 1000 --label worker=4
+```
+
+Observed results on this setup (`classify_document`, 1000 jobs each):
+
+- worker=1: elapsed `7.39s`, throughput `8123.84 jobs/min`, avg processing `7.40ms`, failure rate `0.0%`
+- worker=2: elapsed `6.13s`, throughput `9787.46 jobs/min`, avg processing `10.46ms`, failure rate `0.0%`
+- worker=4: elapsed `4.62s`, throughput `12987.54 jobs/min`, avg processing `9.09ms`, failure rate `0.0%`
+
+Cross-check after benchmark run:
+
+- `/metrics`: `total_jobs=3023`, `success=3017`, `dead=1`, `queue_depth=0`
+- DB counts matched status totals (`success=3017`, `dead=1`, `pending=5`)
 
 ## Synthetic Data
 
