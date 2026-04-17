@@ -95,3 +95,35 @@ def list_jobs(status=None, job_type=None, page=1, per_page=20):
     query_params = [*params, per_page, offset]
     rows = fetch_all(query, tuple(query_params))
     return rows, total
+
+
+def get_status_counts():
+    query = """
+    SELECT status, COUNT(*) AS count
+    FROM jobs
+    GROUP BY status
+    """
+    rows = fetch_all(query)
+    return {row["status"]: int(row["count"]) for row in rows}
+
+
+def get_average_processing_ms():
+    query = """
+    SELECT AVG(processing_ms) AS avg_processing_ms
+    FROM jobs
+    WHERE processing_ms IS NOT NULL
+    """
+    row = fetch_one(query)
+    value = row["avg_processing_ms"]
+    return float(value) if value is not None else 0.0
+
+
+def get_jobs_per_minute():
+    query = """
+    SELECT COUNT(*) AS count
+    FROM jobs
+    WHERE updated_at >= NOW() - INTERVAL '1 minute'
+      AND status IN ('success', 'failed', 'dead')
+    """
+    row = fetch_one(query)
+    return float(row["count"])

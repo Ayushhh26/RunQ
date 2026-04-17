@@ -8,6 +8,7 @@ POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+ACTIVE_WORKERS = int(os.getenv("ACTIVE_WORKERS", "1"))
 
 JOB_STATUS_PENDING = "pending"
 JOB_STATUS_RUNNING = "running"

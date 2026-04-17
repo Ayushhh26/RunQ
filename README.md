@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 10:
+Implemented through Step 11:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -18,7 +18,8 @@ Implemented through Step 10:
 - Step 8: **Retries + DLQ** — worker backs off **1s / 2s / 4s** between attempts, re-enqueues after up to **3** consecutive failures; a **4th** failure sets status **`dead`** and pushes the job id to Redis **`runq:dlq`**
 - Step 9: **Graceful shutdown + stale reaper** — worker handles `SIGTERM`/`SIGINT` by finishing current job before exit; startup reaper re-queues `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
 - Step 10: **`GET /jobs` with filters + pagination** — supports `status`, `job_type`, `page`, `per_page`, and returns `total`
-- Next (per plan): observability endpoints (`/health`, `/metrics`) + structured logging, Makefile, load tests
+- Step 11: **Observability endpoints** — `GET /health` now reports postgres/redis connectivity + `active_workers` + `queue_depth`; `GET /metrics` reports totals, status counts, success rate, average processing time, and jobs/minute
+- Next (per plan): structured logging (Step 12), Makefile workflow (Step 13), load testing (Step 14), final README polish (Step 15)
 
 ## Tech Stack
 
@@ -45,6 +46,7 @@ Health checks:
 ```bash
 curl http://localhost:8000/
 curl http://localhost:8000/health
+curl http://localhost:8000/metrics
 ```
 
 ## Job API (Current)
@@ -93,6 +95,33 @@ Supported `job_type` values:
 - `summarize_document`
 
 ### Example successful responses
+
+**`GET /health`**:
+
+```json
+{
+  "status": "healthy",
+  "postgres": "connected",
+  "redis": "connected",
+  "active_workers": 1,
+  "queue_depth": 0
+}
+```
+
+**`GET /metrics`**:
+
+```json
+{
+  "total_jobs": 19,
+  "success": 13,
+  "failed": 0,
+  "dead": 1,
+  "success_rate": "68.4%",
+  "avg_processing_time_ms": 17.36,
+  "queue_depth": 0,
+  "jobs_per_minute": 0.0
+}
+```
 
 **`GET /jobs`**:
 
