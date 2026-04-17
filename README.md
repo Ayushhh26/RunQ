@@ -4,7 +4,7 @@ Distributed job processing system with async workers, Redis queueing, and Postgr
 
 ## Current Status
 
-Implemented through Step 11:
+Implemented through Step 12:
 
 - Step 0: Dockerized API, worker, Redis, and Postgres
 - Step 1: Database schema + service-local DB/config modules
@@ -19,7 +19,8 @@ Implemented through Step 11:
 - Step 9: **Graceful shutdown + stale reaper** — worker handles `SIGTERM`/`SIGINT` by finishing current job before exit; startup reaper re-queues `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS`
 - Step 10: **`GET /jobs` with filters + pagination** — supports `status`, `job_type`, `page`, `per_page`, and returns `total`
 - Step 11: **Observability endpoints** — `GET /health` now reports postgres/redis connectivity + `active_workers` + `queue_depth`; `GET /metrics` reports totals, status counts, success rate, average processing time, and jobs/minute
-- Next (per plan): structured logging (Step 12), Makefile workflow (Step 13), load testing (Step 14), final README polish (Step 15)
+- Step 12: **Structured JSON logging** — API and worker emit machine-readable JSON events (`job_submitted`, `job_started`, `job_success`, `job_failure`, retry/DLQ and reaper events) with timestamps and `job_id`
+- Next (per plan): Makefile workflow (Step 13), load testing (Step 14), final README polish (Step 15)
 
 ## Tech Stack
 
@@ -215,6 +216,14 @@ Supported `job_type` values:
 - Worker traps `SIGTERM` / `SIGINT` and exits loop only after current in-flight job finishes.
 - On startup, reaper checks for `running` jobs older than `STALE_JOB_THRESHOLD_SECONDS` (default `300`) and re-queues them.
 - Reaper marks recovered jobs back to `pending` with an explanatory `error_message`, then pushes job ids back to `runq:queue`.
+
+### Structured logging (Step 12)
+
+- API and worker now emit JSON log lines for lifecycle events to make debugging and aggregation straightforward.
+- Core events include:
+  - API: `job_submitted`, `job_get`, `jobs_list`, validation rejections
+  - Worker: `job_started`, `job_success`, `job_failure`, `job_retry_scheduled`, `job_moved_to_dlq`, reaper/model lifecycle events
+- Typical fields: `timestamp`, `service`, `event`, plus contextual keys like `job_id`, `status`, `processing_ms`, and `error`.
 
 ## Synthetic Data
 

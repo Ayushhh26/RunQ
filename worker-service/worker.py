@@ -15,7 +15,7 @@ from db import (
     mark_job_success,
     schedule_job_retry,
 )
-from logging_config import configure_logging
+from logging_config import configure_logging, log_event
 from processors.classify import classify_document as run_classify_document, preload_classifier
 from processors.extract import extract_metadata as run_extract_metadata, preload_model
 from processors.summarize import summarize_document as run_summarize_document
@@ -29,7 +29,7 @@ _shutdown_requested = False
 def _request_shutdown(signum, _frame):
     global _shutdown_requested
     _shutdown_requested = True
-    logger.warning("Received signal %s; will stop after current job", signum)
+    log_event(logger, "warning", "worker_shutdown_signal", signal=signum)
 
 
 def install_signal_handlers():
@@ -42,10 +42,10 @@ def wait_for_redis():
         try:
             client = get_redis_client()
             client.ping()
-            logger.info("Connected to Redis")
+            log_event(logger, "info", "worker_redis_connected")
             return
         except Exception as exc:
-            logger.warning("Waiting for Redis... %s", exc)
+            log_event(logger, "warning", "worker_redis_wait", error=str(exc))
             time.sleep(2)
 
 
@@ -77,11 +77,11 @@ def run_worker_loop():
             continue
 
         started_at = time.time()
-        logger.info("Starting job %s", job_id)
+        log_event(logger, "info", "job_started", job_id=job_id)
         try:
             job = get_job_for_processing(job_id)
             if not job:
-                logger.warning("Job %s not found in database", job_id)
+                log_event(logger, "warning", "job_not_found", job_id=job_id)
                 continue
 
             _, job_type, file_path, retry_count = job
@@ -89,54 +89,72 @@ def run_worker_loop():
             result = process_job(job_type, file_path)
             processing_ms = int((time.time() - started_at) * 1000)
             mark_job_success(job_id, json.dumps(result), processing_ms)
-            logger.info("Finished job %s successfully", job_id)
+            log_event(
+                logger,
+                "info",
+                "job_success",
+                job_id=job_id,
+                status="success",
+                processing_ms=processing_ms,
+            )
         except Exception as exc:
             processing_ms = int((time.time() - started_at) * 1000)
             err_msg = str(exc)
-            logger.exception("Job %s failed", job_id)
+            log_event(
+                logger,
+                "error",
+                "job_failure",
+                job_id=job_id,
+                status="failed",
+                error=err_msg,
+            )
+            logger.exception("worker stacktrace")
             job = get_job_for_processing(job_id)
             if not job:
-                logger.warning("Job %s missing during failure handling", job_id)
+                log_event(logger, "warning", "job_missing_during_failure", job_id=job_id)
                 continue
             _, _, _, retry_count = job
             new_retry = retry_count + 1
             if new_retry <= MAX_JOB_RETRY_ATTEMPTS:
                 backoff = RETRY_BACKOFF_SECONDS[new_retry - 1]
-                logger.warning(
-                    "Job %s scheduling retry %s/%s after %ss backoff",
-                    job_id,
-                    new_retry,
-                    MAX_JOB_RETRY_ATTEMPTS,
-                    backoff,
+                log_event(
+                    logger,
+                    "warning",
+                    "job_retry_scheduled",
+                    job_id=job_id,
+                    retry_count=new_retry,
+                    max_retries=MAX_JOB_RETRY_ATTEMPTS,
+                    backoff_seconds=backoff,
                 )
                 time.sleep(backoff)
                 schedule_job_retry(job_id, new_retry, err_msg)
                 enqueue_job(job_id)
             else:
-                logger.error(
-                    "Job %s exceeded max retries (%s), moving to DLQ",
-                    job_id,
-                    MAX_JOB_RETRY_ATTEMPTS,
+                log_event(
+                    logger,
+                    "error",
+                    "job_moved_to_dlq",
+                    job_id=job_id,
+                    status="dead",
+                    retry_count=new_retry - 1,
+                    max_retries=MAX_JOB_RETRY_ATTEMPTS,
                 )
                 mark_job_dead(job_id, err_msg, processing_ms)
                 push_dlq(job_id)
-    logger.info("Worker loop exited gracefully")
+    log_event(logger, "info", "worker_loop_exited")
 
 
 if __name__ == "__main__":
     configure_logging()
     install_signal_handlers()
     if RUNQ_FORCE_FAIL_PATH:
-        logger.warning(
-            "RUNQ_FORCE_FAIL_PATH is set — jobs for %r will fail on purpose",
-            RUNQ_FORCE_FAIL_PATH,
-        )
+        log_event(logger, "warning", "worker_force_fail_enabled")
     wait_for_redis()
-    logger.info("Loading spaCy model en_core_web_sm...")
+    log_event(logger, "info", "worker_model_loading", model="en_core_web_sm")
     preload_model()
-    logger.info("spaCy model ready")
-    logger.info("Loading document classifier...")
+    log_event(logger, "info", "worker_model_ready", model="en_core_web_sm")
+    log_event(logger, "info", "worker_model_loading", model="classifier")
     preload_classifier()
-    logger.info("Classifier ready")
+    log_event(logger, "info", "worker_model_ready", model="classifier")
     requeue_stale_running_jobs()
     run_worker_loop()

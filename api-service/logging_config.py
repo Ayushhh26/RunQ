@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 from datetime import datetime, timezone
 
 
@@ -10,12 +10,11 @@ def configure_logging():
     )
 
 
-def log_event(logger: logging.Logger, level: str, event: str, **fields):
+def log_event(logger: logging.Logger, event: str, **fields):
     payload = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "service": "worker",
+        "service": "api",
         "event": event,
         **fields,
     }
-    line = json.dumps(payload, default=str)
-    getattr(logger, level.lower(), logger.info)(line)
+    logger.info(json.dumps(payload, default=str))
